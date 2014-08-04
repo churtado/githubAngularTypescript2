@@ -1,23 +1,18 @@
-﻿<html xmlns:ng="http://angularjs.org" id="ng-app" data-ng-app="myApp">
+﻿<!DOCTYPE html>
+<html ng-app="myApp">
 <head>
-    <title>Testing</title>
+    <title>Angularjs and Typescript</title>
     <script src="Scripts/angular.js"></script>
     <script src="app.js"></script>
 </head>
-<body data-ng-controller="MyController">
-    <div>
-        <h1>{{message}}</h1>
+<body ng-controller="MyController">
+    <h1>{{message}}</h1>
+    <div>{{ error }}</div>
+    <form name="searchUser" ng-submit="search(username)">
+        <input type="search" required ng-model="username" />
+        <input type="submit" value="Search">
+    </form>
+    <div ng-include="'userdetails.html'" ng-show="user"></div>
 
-        <div>{{error}}</div>
-
-        <form name="searchUser" ng-submit="search(username)">
-            <input type="search" required ng-model="username" />
-            <input type="submit" value="Search">
-        </form>
-
-        <div ng-include="'userdetails.html'" ng-show="user"></div>
-
-        <my-directive></my-directive>
-    </div>
 </body>
 </html>

@@ -1,8 +1,8 @@
-﻿/// <reference path="Scripts/typings/angularjs/angular.d.ts" />
+﻿/// <reference path="_all.ts" />
 
 var appModule = angular.module("myApp", []);
 
-appModule.controller("MyController", ["$scope", "$log", "$location", "$anchorScroll","MyService", ($scope, $log, $location, $anchorScroll, MyService)
+appModule.controller("MyController", ["$scope", "$log", "$location", "$anchorScroll", "MyService", ($scope, $log, $location, $anchorScroll, MyService)
     => new Application.Controllers.MyController($scope, $log, $location, $anchorScroll, MyService)]);
 
 appModule.factory("MyService", ["$http", "$location", "$log", ($http, $location, $log)
@@ -28,7 +28,6 @@ module Application.Controllers {
     export class MyController {
 
         scope: IMyScope;
-        //scope: any;
         log:any;
         myService: Services.IMyService;
         location: ng.ILocationService;
@@ -45,7 +44,7 @@ module Application.Controllers {
             this.scope.username = "angular";
         }
 
-        /*I don't know why I need fat arrow notation for this to work. Need to ask James*/
+        //I don't know why I need fat arrow notation for this to work. Need to ask James
         search = (username) => {
             this.log.debug("searching user...");
             this.scope.myService.getUser(this.scope.username)
@@ -78,7 +77,7 @@ module Application.Services {
 
     export interface IMyService {
         getUser(username: string)
-        getRepos(user:any)
+        getRepos(user: any)
     }
 
     export class MyService {
@@ -87,7 +86,7 @@ module Application.Services {
         location: ng.ILocationService;
         log: ng.ILogService;
 
-        constructor($http: ng.IHttpService, $location: ng.ILocationService, $log:ng.ILogService) {
+        constructor($http: ng.IHttpService, $location: ng.ILocationService, $log: ng.ILogService) {
             this.http = $http;
             this.location = $location;
             this.log = $log;
@@ -111,6 +110,7 @@ module Application.Services {
 
     }
 }
+
 
 module Application.Directives {
     export class MyDirective {
