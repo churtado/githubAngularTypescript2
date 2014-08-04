@@ -2,11 +2,11 @@
 
 var appModule = angular.module("myApp", []);
 
-appModule.controller("MyController", ["$scope", "$log", "MyService", ($scope, $log, MyService)
-    => new Application.Controllers.MyController($scope, $log, MyService)]);
+appModule.controller("MyController", ["$scope", "$log", "$location", "$anchorScroll","MyService", ($scope, $log, $location, $anchorScroll, MyService)
+    => new Application.Controllers.MyController($scope, $log, $location, $anchorScroll, MyService)]);
 
-appModule.factory("MyService", ["$http", "$location", ($http, $location)
-    => new Application.Services.MyService($http, $location)]);
+appModule.factory("MyService", ["$http", "$location", "$log", ($http, $location, $log)
+    => new Application.Services.MyService($http, $location, $log)]);
 
 appModule.directive("myDirective", ()
     => new Application.Directives.MyDirective());
@@ -22,6 +22,7 @@ module Application.Controllers {
         search: any;
         user: any;
         error: string;
+        repos: any;
     }
 
     export class MyController {
@@ -30,10 +31,14 @@ module Application.Controllers {
         //scope: any;
         log:any;
         myService: Services.IMyService;
+        location: ng.ILocationService;
+        anchorScroll: ng.IAnchorScrollService;
 
-        constructor($scope: IMyScope, $log: ng.ILogService, myService: Services.IMyService) {
+        constructor($scope: IMyScope, $log: ng.ILogService, $location: ng.ILocationService, $anchorScroll:ng.IAnchorScrollService, myService: Services.IMyService) {
             this.log = $log;
+            this.location = $location;
             this.scope = $scope;
+            this.anchorScroll = $anchorScroll;
             this.scope.myService = myService;
             this.scope.message = "Angular/Typescript integration";
             this.scope.search = this.search;
@@ -47,13 +52,23 @@ module Application.Controllers {
             .then(this.onUserComplete, this.onError);
         }
 
-        onUserComplete = (data:any) => {
+        onUserComplete = (data: any) => {
+            this.log.debug("placing user data in scope...");
             this.scope.user = data;
+            this.log.debug("calling getRepos...");
+            this.scope.myService.getRepos(this.scope.user).then(this.onRepos, this.onError);
         }
 
-        onError() {
-            this.log.error("Got an error fetching the user");
+        onError = (reason) => {
+            this.log.error("logging error on console");
             this.scope.error = "Could not fetch the data";
+        }
+
+        onRepos = (data) => {
+            this.log.debug("fetching repos..");
+            this.scope.repos = data;
+            this.location.hash("userDetails");
+            this.anchorScroll();
         }
 
     }
@@ -70,20 +85,24 @@ module Application.Services {
 
         http: ng.IHttpService;
         location: ng.ILocationService;
+        log: ng.ILogService;
 
-        constructor($http: ng.IHttpService, $location: ng.ILocationService) {
+        constructor($http: ng.IHttpService, $location: ng.ILocationService, $log:ng.ILogService) {
             this.http = $http;
             this.location = $location;
+            this.log = $log;
         }
 
-        getUser(username: string) {
+        getUser = (username: string) => {
+            this.log.debug("fetching user data with $http service...");
             return this.http.get("https://api.github.com/users/" + username)
                 .then((response) => {
                     return response.data;
                 });
         }
 
-        getRepos(user: any) {
+        getRepos = (user: any) => {
+
             return this.http.get(user.repos_url)
                 .then((response) => {
                     return response.data;
